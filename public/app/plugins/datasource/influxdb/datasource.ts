@@ -16,6 +16,9 @@ export default class InfluxDatasource {
   basicAuth: any;
   withCredentials: any;
   interval: any;
+  retentionPolicy: any;
+  retentionBefore: any;
+  retentionInterval: any;
   supportAnnotations: boolean;
   supportMetrics: boolean;
   responseParser: any;
@@ -34,6 +37,9 @@ export default class InfluxDatasource {
     this.basicAuth = instanceSettings.basicAuth;
     this.withCredentials = instanceSettings.withCredentials;
     this.interval = (instanceSettings.jsonData || {}).timeInterval;
+    this.retentionPolicy = (instanceSettings.jsonData || {}).retentionPolicy;
+    this.retentionBefore = (instanceSettings.jsonData || {}).retentionBefore;
+    this.retentionInterval = (instanceSettings.jsonData || {}).retentionInterval;
     this.supportAnnotations = true;
     this.supportMetrics = true;
     this.responseParser = new ResponseParser();
@@ -47,12 +53,31 @@ export default class InfluxDatasource {
     var queryModel;
     var i, y;
 
+    var timestamp = new Date().getTime() / 1000;
+    var beforeTs = timestamp - options.range.from.unix();
+    var retentionPolicy = this.retentionPolicy ? this.retentionPolicy.split(";") : {};
+    var retentionBefore = this.retentionBefore ? this.retentionBefore.split(";") : {};
+    var retentionInterval = this.retentionInterval ? this.retentionInterval.split(";") : {};
+    var policy, interval;
+
+    for (y = 0; y < retentionBefore.length; y++) {
+      if (beforeTs > parseInt(retentionBefore[y])) {
+        policy = retentionPolicy[y];
+        interval = retentionInterval[y];
+      }
+    }
+
     var allQueries = _.map(targets, target => {
       if (target.hide) {
         return '';
       }
 
       queryTargets.push(target);
+
+      if (policy) {
+        scopedVars.autopolicy = { value: policy };
+        scopedVars.autointerval = { value: interval };
+      }
 
       // backward compatibility
       scopedVars.interval = scopedVars.__interval;
