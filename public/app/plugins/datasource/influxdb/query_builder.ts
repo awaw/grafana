@@ -52,7 +52,7 @@ export class InfluxQueryBuilder {
       if (!measurement.match('^/.*/')) {
         measurement = '"' + measurement + '"';
 
-        if (policy && policy !== 'default') {
+        if (policy && policy !== 'default' && policy !== 'auto') {
           policy = '"' + policy + '"';
           measurement = policy + '.' + measurement;
         }
@@ -69,7 +69,7 @@ export class InfluxQueryBuilder {
         measurement = '"' + measurement + '"';
       }
 
-      if (policy && policy !== 'default') {
+      if (policy && policy !== 'default' && policy !== 'auto') {
         policy = '"' + policy + '"';
         measurement = policy + '.' + measurement;
       }

@@ -23,6 +23,18 @@ export default class InfluxQuery {
     target.groupBy = target.groupBy || [{ type: 'time', params: ['$__interval'] }, { type: 'fill', params: ['null'] }];
     target.select = target.select || [[{ type: 'field', params: ['value'] }, { type: 'mean', params: [] }]];
 
+    if (target.policy === 'auto') {
+      target.policy = 'default';
+      if (typeof scopedVars !== 'undefined' && typeof scopedVars.autopolicy !== 'undefined') {
+        target.policy = scopedVars.autopolicy.value;
+        var interval = kbn.interval_to_seconds(scopedVars.autointerval.value);
+        if (interval > kbn.interval_to_seconds(scopedVars.__interval.value)) {
+          scopedVars.__interval = { value: kbn.secondsToHms(interval) };
+          scopedVars.interval = scopedVars.__interval;
+        }
+      }
+    }
+
     this.updateProjection();
   }
 
