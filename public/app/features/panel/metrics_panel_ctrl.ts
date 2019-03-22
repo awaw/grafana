@@ -150,7 +150,7 @@ class MetricsPanelCtrl extends PanelCtrl {
     // and add built in variables interval and interval_ms
     const scopedVars = Object.assign({}, this.panel.scopedVars, {
       __interval: { text: this.interval, value: this.interval },
-      __interval_ms: { text: this.intervalMs, value: this.intervalMs },
+      __interval_ms: { text: String(this.intervalMs), value: String(this.intervalMs) },
     });
 
     const metricsQuery = {
