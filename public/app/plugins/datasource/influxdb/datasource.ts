@@ -53,15 +53,15 @@ export default class InfluxDatasource {
     let queryModel;
     let i, y;
 
-    let timestamp = new Date().getTime() / 1000;
-    let beforeTs = timestamp - options.range.from.unix();
-    let retentionPolicy = this.retentionPolicy ? this.retentionPolicy.split(";") : {};
-    let retentionBefore = this.retentionBefore ? this.retentionBefore.split(";") : {};
-    let retentionInterval = this.retentionInterval ? this.retentionInterval.split(";") : {};
+    const timestamp = new Date().getTime() / 1000;
+    const beforeTs = timestamp - options.range.from.unix();
+    const retentionPolicy = this.retentionPolicy ? this.retentionPolicy.split(";") : {};
+    const retentionBefore = this.retentionBefore ? this.retentionBefore.split(";") : {};
+    const retentionInterval = this.retentionInterval ? this.retentionInterval.split(";") : {};
     let policy, interval;
 
     for (y = 0; y < retentionBefore.length; y++) {
-      if (beforeTs > parseInt(retentionBefore[y])) {
+      if (beforeTs > parseInt(retentionBefore[y], 10)) {
         policy = retentionPolicy[y];
         interval = retentionInterval[y];
       }

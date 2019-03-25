@@ -27,7 +27,7 @@ export default class InfluxQuery {
       target.policy = 'default';
       if (typeof scopedVars !== 'undefined' && typeof scopedVars.autopolicy !== 'undefined') {
         target.policy = scopedVars.autopolicy.value;
-        var interval = kbn.interval_to_seconds(scopedVars.autointerval.value);
+        const interval = kbn.interval_to_seconds(scopedVars.autointerval.value);
         if (interval > kbn.interval_to_seconds(scopedVars.__interval.value)) {
           scopedVars.__interval = { value: kbn.secondsToHms(interval) };
           scopedVars.interval = scopedVars.__interval;
