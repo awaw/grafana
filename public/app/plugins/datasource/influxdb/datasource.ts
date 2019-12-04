@@ -20,6 +20,9 @@ export default class InfluxDatasource extends DataSourceApi<InfluxQuery, InfluxO
   basicAuth: any;
   withCredentials: any;
   interval: any;
+  retentionPolicy: any;
+  retentionBefore: any;
+  retentionInterval: any;
   responseParser: any;
   httpMode: string;
 
@@ -44,6 +47,9 @@ export default class InfluxDatasource extends DataSourceApi<InfluxQuery, InfluxO
     this.withCredentials = instanceSettings.withCredentials;
     const settingsData = instanceSettings.jsonData || ({} as InfluxOptions);
     this.interval = settingsData.timeInterval;
+    this.retentionPolicy = settingsData.retentionPolicy;
+    this.retentionBefore = settingsData.retentionBefore;
+    this.retentionInterval = settingsData.retentionInterval;
     this.httpMode = settingsData.httpMode || 'GET';
     this.responseParser = new ResponseParser();
   }
@@ -56,12 +62,32 @@ export default class InfluxDatasource extends DataSourceApi<InfluxQuery, InfluxO
     let queryModel: InfluxQueryModel;
     let i, y;
 
+    const timestamp = new Date().getTime() / 1000;
+    const beforeTs = timestamp - options.range.from.unix();
+    const retentionPolicy = this.retentionPolicy ? this.retentionPolicy.split(";") : {};
+    const retentionBefore = this.retentionBefore ? this.retentionBefore.split(";") : {};
+    const retentionInterval = this.retentionInterval ? this.retentionInterval.split(";") : {};
+    let policy = '';
+    let interval = '';
+
+    for (y = 0; y < retentionBefore.length; y++) {
+      if (beforeTs > parseInt(retentionBefore[y], 10)) {
+        policy = retentionPolicy[y];
+        interval = retentionInterval[y];
+      }
+    }
+
     let allQueries = _.map(targets, target => {
       if (target.hide) {
         return '';
       }
 
       queryTargets.push(target);
+
+      if (policy !== '') {
+        scopedVars.autopolicy = { value: policy };
+        scopedVars.autointerval = { value: interval };
+      }
 
       // backward compatibility
       scopedVars.interval = scopedVars.__interval;

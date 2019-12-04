@@ -608,7 +608,7 @@ func getGitSha() string {
 	if err != nil {
 		return "unknown-dev"
 	}
-	return string(v)
+	return string(v) + "/" + getGitBranch()
 }
 
 func buildStamp() int64 {

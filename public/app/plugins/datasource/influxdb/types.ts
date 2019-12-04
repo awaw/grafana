@@ -3,6 +3,9 @@ import { DataQuery, DataSourceJsonData } from '@grafana/data';
 export interface InfluxOptions extends DataSourceJsonData {
   timeInterval: string;
   httpMode: string;
+  retentionPolicy: string;
+  retentionBefore: string;
+  retentionInterval: string;
 }
 
 export interface InfluxQueryPart {
